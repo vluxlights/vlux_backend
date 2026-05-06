@@ -155,12 +155,15 @@ export const forgotPassword = async (req, res) => {
 
     await user.save();
 
-    // 📩 Send Email
-    await sendEmail(
-      user.email,
-      "Password Reset OTP",
-      `Your OTP is ${otp}. It is valid for 5 minutes.`
-    );
+console.log("📩 Forgot password API hit");
+
+console.log("📤 Sending email...");
+await sendEmail(
+  user.email,
+  "Password Reset OTP",
+  `Your OTP is ${otp}. It is valid for 5 minutes.`
+);
+console.log("✅ Email function completed");
 
     return res.status(200).json({
       success: true,
