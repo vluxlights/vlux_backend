@@ -11,6 +11,10 @@ import uploadRoutes from "./routes/uploadRoutes.js";
 import profile from "./routes/profileRoutes.js";
 import dashboardRoutes from "./routes/admindashRoutes.js";
 
+
+import dotenv from "dotenv";
+dotenv.config();
+
 const app = express();
 
 // middleware

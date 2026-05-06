@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
       required: true,
       unique: true,
       lowercase: true,
+      match: [/^\S+@\S+\.\S+$/, "Please use a valid email"],
     },
 
     phoneNumber: {
@@ -26,17 +27,24 @@ const userSchema = new mongoose.Schema(
       minlength: 6,
     },
 
-     role: {
+    role: {
       type: String,
       enum: ["user", "admin"],
       default: "user",
     },
 
+    otp: {
+      type: String,
+      default: null,
+    },
+
+    otpExpiry: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
-
-
 
 const User = mongoose.model("User", userSchema);
 
