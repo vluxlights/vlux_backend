@@ -1,28 +1,34 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-const sendEmail = async (to, subject, text) => {
+const resend = new Resend(process.env.RESEND_API_KEY);
+
+const sendEmail = async (to, otp) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      family: 4 // ✅ FIX
-    });
-
-    await transporter.verify();
-    console.log("✅ SMTP connected");
-
-    await transporter.sendMail({
-      from: `"Vlux Support" <${process.env.EMAIL_USER}>`,
+    const response = await resend.emails.send({
+      from: "Vlux Lights <onboarding@resend.dev>",
       to,
-      subject,
-      text,
+      subject: "🔐 Password Reset OTP - Vlux",
+      html: `
+        <div style="font-family: Arial; padding: 20px;">
+          <h2>Password Reset Request</h2>
+          <p>Your OTP code is:</p>
+
+          <h1 style="color: #ff4d4d;">${otp}</h1>
+
+          <p>This OTP is valid for 5 minutes.</p>
+
+          <br/>
+          <p>If you did not request this, please ignore this email.</p>
+
+          <hr/>
+          <p style="font-size:12px; color:gray;">
+            Vlux Lights Support Team
+          </p>
+        </div>
+      `,
     });
 
-    console.log("✅ Email sent");
-
+    console.log("✅ Email sent:", response);
   } catch (error) {
     console.error("❌ Email error:", error.message);
     throw error;

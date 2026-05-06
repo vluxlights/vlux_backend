@@ -125,7 +125,9 @@ export const login = async (req, res) => {
   }
 };
 
-
+/* =====================================
+   FORGOT PASSWORD (SEND OTP)
+===================================== */
 export const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -149,21 +151,19 @@ export const forgotPassword = async (req, res) => {
     // 🔢 Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // ⏳ Save OTP + expiry
+    // ⏳ Save OTP + expiry (5 min)
     user.otp = otp;
-    user.otpExpiry = Date.now() + 5 * 60 * 1000; // 5 minutes
+    user.otpExpiry = Date.now() + 5 * 60 * 1000;
 
     await user.save();
 
-console.log("📩 Forgot password API hit");
+    console.log("📩 Forgot password API hit");
+    console.log("📤 Sending OTP email...");
 
-console.log("📤 Sending email...");
-await sendEmail(
-  user.email,
-  "Password Reset OTP",
-  `Your OTP is ${otp}. It is valid for 5 minutes.`
-);
-console.log("✅ Email function completed");
+    // ✅ NEW (Resend style)
+    await sendEmail(user.email, otp);
+
+    console.log("✅ Email sent successfully");
 
     return res.status(200).json({
       success: true,
@@ -171,10 +171,11 @@ console.log("✅ Email function completed");
     });
 
   } catch (error) {
-    console.error("Forgot Password Error:", error.message);
+    console.error("❌ Forgot Password Error:", error.message);
+
     return res.status(500).json({
       success: false,
-      message: "Something went wrong",
+      message: "Failed to send OTP",
     });
   }
 };
@@ -203,7 +204,7 @@ export const resetPassword = async (req, res) => {
       });
     }
 
-    // 🔐 Validate OTP safely
+    // 🔐 Validate OTP
     if (
       !user.otp ||
       user.otp !== otp ||
@@ -232,10 +233,11 @@ export const resetPassword = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("Reset Password Error:", error.message);
+    console.error("❌ Reset Password Error:", error.message);
+
     return res.status(500).json({
       success: false,
-      message: "Something went wrong",
+      message: "Password reset failed",
     });
   }
 };
